@@ -105,7 +105,7 @@ def send_mail():
 	part = MIMEText(f1()+'.xls'+"统计表")      # 邮件正文
 	msg.attach(part)
 
-	part = MIMEApplication(open(f1()+'.xls','rb').read())  
+	part = MIMEApplication(open(src_dir()+'\\'+f1()+'.xls','rb').read())  
 	part.add_header('Content-Disposition', 'attachment', filename=f1()+'.xls')  
 	msg.attach(part)
 
