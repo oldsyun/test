@@ -118,8 +118,8 @@ def send_mail():
 	except smtplib.SMTPException:
 		print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"邮件发送失败!")
 		
-def add_excel():
-	workbook = xlrd.open_workbook(src_dir()+'\\'+datetime.datetime.now().strftime("%Y%m")+'.xls',formatting_info=True)
+def add_excel():	
+workbook = xlrd.open_workbook(src_dir()+'\\'+'xx.xls',formatting_info=True)
 	newWb = copy(workbook)
 	newWs = newWb.get_sheet(0)
 	send_mail()
