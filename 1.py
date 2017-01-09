@@ -84,10 +84,10 @@ def update_excel(num):
 def f1():
 	now = datetime.datetime.now()
 	if now.strftime("%m") == '01':
-		f1=(datetime.datetime(now.year-1,12,now.day).strftime("%Y%m"))
+		Fn=datetime.datetime(now.year-1,12,now.day).strftime("%Y%m")
 	else:
-		f1=(datetime.datetime(now.year,(now.month-1),now.day).strftime("%Y%m"))
-	return f1
+		Fn=datetime.datetime(now.year,(now.month-1),now.day).strftime("%Y%m")
+	return fn
 	
 def send_mail():	
 #第三方SMTP服务
@@ -120,11 +120,11 @@ def send_mail():
 		
 def add_excel():	
 workbook = xlrd.open_workbook(src_dir()+'\\'+'xx.xls',formatting_info=True)
-	newWb = copy(workbook)
-	newWs = newWb.get_sheet(0)
+	new_book = copy(workbook)
+	new_sheet = new_book.get_sheet(0)
 	send_mail()
 	#保存文件
-	newWb.save(src_dir()+'\\'+datetime.datetime.now().strftime("%Y%m")+'.xls')
+	new_book.save(src_dir()+'\\'+datetime.datetime.now().strftime("%Y%m")+'.xls')
 
 if __name__ == '__main__':
         
