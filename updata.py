@@ -5,7 +5,7 @@ import os
 import socket
 import struct
 import time
-from datetime import time, datetime, timedelta
+import datetime
 import pymysql.cursors
 
 mydir = os.path.dirname(os.path.abspath(__file__))
@@ -116,15 +116,15 @@ def datasend():
 
 
 if __name__ == "__main__":
-    now = datetime.now()
+    now = datetime.datetime.now()
     strnow = now.strftime('%Y-%m-%d %H:%M:%S')
     print(strnow)
-    period = timedelta(days=0, hours=0, minutes=5, seconds=0)
+    period = datetime.timedelta(days=0, hours=0, minutes=5, seconds=0)
     next_time = now + period
     strnext_time = next_time.strftime('%Y-%m-%d %H:%M:%S')
     print("第一次上传时间:", strnext_time)
     while True:
-        iter_now = datetime.now()
+        iter_now = datetime.datetime.now()
         iter_now_time = iter_now.strftime('%Y-%m-%d %H:%M:%S')
         if str(iter_now_time) == str(strnext_time):
             print(iter_now_time)
