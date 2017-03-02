@@ -4,8 +4,8 @@ import logging.handlers
 import os
 import socket
 import struct
-import time
 import datetime
+import time
 import pymysql.cursors
 
 mydir = os.path.dirname(os.path.abspath(__file__))
