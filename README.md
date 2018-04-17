@@ -3,7 +3,9 @@
 
 
 static const uint8_t D0   = 16;
+
 static const uint8_t D1   = 5;
+
 static const uint8_t D2   = 4;
 static const uint8_t D3   = 0;
 static const uint8_t D4   = 2;
