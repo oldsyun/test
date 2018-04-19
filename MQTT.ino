@@ -2,7 +2,7 @@
 #include <PubSubClient.h>
 
 
-const PROGMEM uint8_t LED_PIN = 2;
+const PROGMEM uint8_t LED = 2;
 unsigned int flag = HIGH;//默认当前灭灯
 boolean m_light_state = false; // light is turned off by default
 
@@ -27,9 +27,11 @@ PubSubClient client(wifiClient);
 
 void setup()   {                
   Serial.begin(115200);
-  pinMode(LED_PIN,OUTPUT);
+  pinMode(D6,OUTPUT);
+  digitalWrite(D6, LOW);
+  pinMode(LED,OUTPUT);
+  digitalWrite(LED, HIGH);
   pinMode(D3,INPUT);
-  digitalWrite(LED_PIN, HIGH);
   if(!autoConfig()){
     smartConfig();
     while (WiFi.status() != WL_CONNECTED) {
@@ -77,7 +79,7 @@ bool autoConfig(){
       Serial.print(".");
       delay(1000);
       flag = !flag;
-      digitalWrite(LED_PIN, flag);
+      digitalWrite(LED, flag);
     } 
   }
   Serial.println("AutoConfig Faild!");
@@ -96,7 +98,7 @@ void smartConfig()
   while (1){
     delay(500);
     flag = !flag;
-    digitalWrite(LED_PIN, flag);
+    digitalWrite(LED, flag);
     if (WiFi.smartConfigDone()){
       //smartconfig配置完毕
       Serial.println("SmartConfig Success");
@@ -105,7 +107,7 @@ void smartConfig()
       Serial.print("PSW:");
       Serial.println(WiFi.psk().c_str());
       WiFi.setAutoConnect(true);  // 设置自动连接
-      digitalWrite(LED_PIN, HIGH);
+      digitalWrite(LED, HIGH);
       delay(2000);
       Serial.println("IP address: ");
       Serial.println(WiFi.localIP());//WiFi.localIP()返回8266获得的ip地址
@@ -126,10 +128,10 @@ void publishLightState() {
 // function called to turn on/off the light
 void setLightState() {
   if (m_light_state) {
-    digitalWrite(LED_PIN, LOW);
+    digitalWrite(D6, HIGH);
     Serial.println("INFO: Turn light on...");
   } else {
-    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(D6, LOW);
     Serial.println("INFO: Turn light off...");
   }
 }
