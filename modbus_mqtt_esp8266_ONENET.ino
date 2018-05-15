@@ -12,8 +12,8 @@ const char *username = "xxxxxx";   //ONENET产品ID
 const char *password = "xxxxxxxxx"; //ONENET鉴权信息
 
 // Update these with values suitable for your network.
-const char *ssid     = "syun";
-const char *wifipassword = "me1y0umima";
+const char *ssid     = "xxx";
+const char *wifipassword = "xxxxxx";
 const char *mqtt_server ="183.230.40.39"; //ONENET 服务器
 long lastMsg = 0;
 
