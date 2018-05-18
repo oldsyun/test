@@ -6,17 +6,15 @@
 #define MQTT_VERSION == MQTT_VERSION_3_1_1
 #define DE_RE  15
 #define LED 2
+unsigned int flag = HIGH;
 
+// Onenet 设置
 const char *clientID = "xxxxxxxx"; //ONENET 设备ID
 const char *username = "xxxxxx";   //ONENET产品ID
-const char *password = "xxxxxxxxx"; //ONENET鉴权信息
+const char *password = "xxxxxxxxx"; //ONENET鉴权信息  
+const char *mqtt_server ="183.230.40.39";
 
-// Update these with values suitable for your network.
-const char *ssid     = "xxx";
-const char *wifipassword = "xxxxxx";
-const char *mqtt_server ="183.230.40.39"; //ONENET 服务器
 long lastMsg = 0;
-
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -24,6 +22,9 @@ ModbusMaster node;
 
 void setup()
 {
+  pinMode(D6,OUTPUT);
+  digitalWrite(D6, LOW);
+  pinMode(D3,INPUT);
   pinMode(DE_RE, OUTPUT);
   digitalWrite(DE_RE, 0);
   pinMode(LED, OUTPUT);   
@@ -32,9 +33,11 @@ void setup()
   node.begin(1, Serial);
   node.preTransmission(preTransmission);
   node.postTransmission(postTransmission);
+  if(!autoConfig()){
+    smartConfig();
+  }
   client.setServer(mqtt_server, 6002);
   client.connect(clientID, username, password);
- // client.subscribe("$creq");
   client.setCallback(callback);
 }
 
@@ -47,15 +50,41 @@ void postTransmission()
 {
   digitalWrite(DE_RE, 0);
 }
-
-void setup_wifi() {
-  delay(10);
-  Serial.println(ssid);
+/**
+* 开启SmartConfig功能
+*/
+void smartConfig()
+{
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, wifipassword);
-  while (WiFi.status() != WL_CONNECTED) {
+  delay(2000);
+  WiFi.beginSmartConfig();
+  while (1){
     delay(500);
-  } 
+    flag = !flag;
+    digitalWrite(LED, flag);
+    if (WiFi.smartConfigDone()){
+      WiFi.setAutoConnect(true);  // 设置自动连接
+      digitalWrite(LED, HIGH);
+      delay(2000);
+      break;
+    }
+  }
+}
+
+bool autoConfig(){
+  WiFi.mode(WIFI_STA);     //设置esp8266 工作模式
+  WiFi.begin();
+  delay(1000);//刚启动模块的话 延时稳定一下
+  for(int i=0;i<20;i++){
+    if (WiFi.status() == WL_CONNECTED){
+       return true;
+    }else{
+     delay(1000);
+     flag = !flag;
+     digitalWrite(LED, flag);
+    } 
+  }
+  return false;
 }
 
 void reconnect() {
@@ -82,14 +111,14 @@ void senddata() {
 
   JsonArray& datastreams_0_datapoints = datastreams_0.createNestedArray("datapoints");
   JsonObject& datastreams_0_datapoints_0 = datastreams_0_datapoints.createNestedObject();
-  datastreams_0_datapoints_0["value"] = 1+(node.getResponseBuffer(0)&0x01)*10; //C8-1 继电器位置 合11 分1
+  datastreams_0_datapoints_0["value"] = 1+(node.getResponseBuffer(0)&0x01)*10;
 
   JsonObject& datastreams_1 = datastreams.createNestedObject();
   datastreams_1["id"] = "c82";
 
   JsonArray& datastreams_1_datapoints = datastreams_1.createNestedArray("datapoints");
   JsonObject& datastreams_1_datapoints_0 = datastreams_1_datapoints.createNestedObject();
-  datastreams_1_datapoints_0["value"] = 2+((node.getResponseBuffer(0)&0x02)>>1)*10;  //C8-2 继电器位置 合12 分2
+  datastreams_1_datapoints_0["value"] = 2+((node.getResponseBuffer(0)&0x02)>>1)*10;
 
   JsonObject& datastreams_2 = datastreams.createNestedObject();
   datastreams_2["id"] = "c83";
@@ -220,5 +249,11 @@ void loop()
   if (now - lastMsg > 5000) {
   lastMsg = now;
   senddata();
+  flag = !flag;
+  digitalWrite(LED, flag);
   }
+  int D3_Value=digitalRead(D3);
+  if(D3_Value==LOW){
+     smartConfig(); 
+   }
 }
