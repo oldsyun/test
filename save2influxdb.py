@@ -11,32 +11,35 @@ def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
     #client.subscribe(hubTopicSubscribe)
 
-def data2influx(SN,dict):
+def data2influx(SN,dictstr):
     try:
         point=[]
         client = InfluxDBClient('localhost', 8086, '', '', 'home') 
         current_time = datetime.datetime.utcnow().isoformat("T")
-        for dev in dict['device']:
+        for dev in dictstr['device']:
             devname=dev['dev_name']
             comstate=dev['comm_s']
             field=dev['variable']
+            L1=list()
+            L2=list()
             if comstate:
                 for k,v in field.items():
-                    field[k]=float(v)
+                    if field[k]!='bad':
+                        field[k]=float(v)
+                    L1.append(devname+k)
+                    L2.append(v)
+                newfield=dict(zip(L1,L2))
                 json_body = {
                     "measurement": SN,
-                    "tags": {
-                            "DevName":devname,
-                            "Com_s":comstate
-                            },
                     "time": current_time,
-                    "fields": field
+                    "fields": newfield
                     }
                 point.append(json_body)
         client.write_points(point)
     except Exception as e:
         print (str(e))
         pass
+
 
 def on_message(client, userdata, msg):
     data_json = msg.payload.decode("utf-8")
