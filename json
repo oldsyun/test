@@ -1,0 +1,99 @@
+{
+    "device": [
+        {
+            "dev_name": "Dev3",
+            "comm_s": "1",
+            "variable": {
+                "V1": 655.35,
+                "V2": 655.35,
+                "V3": 655.35,
+                "I1": 655.35,
+                "I2": 655.35,
+                "I3": 655.35,
+                "I6": 655.35,
+                "I7": 655.35,
+                "I8": 655.35,
+                "I9": 655.35,
+                "I10": 655.35,
+                "I11": 655.35,
+                "I12": 655.35,
+                "P1": 65535,
+                "P2": 65535,
+                "P3": 65535,
+                "P4": 65535,
+                "P5": 65535,
+                "P6": 65535,
+                "P7": 65535,
+                "P8": 65535,
+                "P9": 65535,
+                "P10": 655.35,
+                "P11": 655.35,
+                "P12": 655.35,
+                "EP1": 42949672.96,
+                "EP2": 42949672.96,
+                "EP3": 42949672.96,
+                "EP4": 42949672.96,
+                "EP5": 42949672.96,
+                "EP6": 42949672.96,
+                "EP7": 42949672.96,
+                "EP8": 42949672.96,
+                "EP9": 42949672.96,
+                "EP10": 42949672.96,
+                "EP11": 42949672.96,
+                "EP12": 42949672.96
+            }
+        }
+    ]
+}
+
+const size_t capacity = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(37);
+DynamicJsonBuffer jsonBuffer(capacity);
+
+JsonObject& root = jsonBuffer.createObject();
+
+JsonArray& device = root.createNestedArray("device");
+
+JsonObject& device_0 = device.createNestedObject();
+device_0["dev_name"] = "Dev3";
+device_0["comm_s"] = "1";
+
+JsonObject& device_0_variable = device_0.createNestedObject("variable");
+device_0_variable["V1"] = 655.35;
+device_0_variable["V2"] = 655.35;
+device_0_variable["V3"] = 655.35;
+device_0_variable["I1"] = 655.35;
+device_0_variable["I2"] = 655.35;
+device_0_variable["I3"] = 655.35;
+device_0_variable["I6"] = 655.35;
+device_0_variable["I7"] = 655.35;
+device_0_variable["I8"] = 655.35;
+device_0_variable["I9"] = 655.35;
+device_0_variable["I10"] = 655.35;
+device_0_variable["I11"] = 655.35;
+device_0_variable["I12"] = 655.35;
+device_0_variable["P1"] = 65535;
+device_0_variable["P2"] = 65535;
+device_0_variable["P3"] = 65535;
+device_0_variable["P4"] = 65535;
+device_0_variable["P5"] = 65535;
+device_0_variable["P6"] = 65535;
+device_0_variable["P7"] = 65535;
+device_0_variable["P8"] = 65535;
+device_0_variable["P9"] = 65535;
+device_0_variable["P10"] = 655.35;
+device_0_variable["P11"] = 655.35;
+device_0_variable["P12"] = 655.35;
+device_0_variable["EP1"] = 42949672.96;
+device_0_variable["EP2"] = 42949672.96;
+device_0_variable["EP3"] = 42949672.96;
+device_0_variable["EP4"] = 42949672.96;
+device_0_variable["EP5"] = 42949672.96;
+device_0_variable["EP6"] = 42949672.96;
+device_0_variable["EP7"] = 42949672.96;
+device_0_variable["EP8"] = 42949672.96;
+device_0_variable["EP9"] = 42949672.96;
+device_0_variable["EP10"] = 42949672.96;
+device_0_variable["EP11"] = 42949672.96;
+device_0_variable["EP12"] = 42949672.96;
+
+root.printTo(Serial);
