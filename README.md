@@ -27,3 +27,14 @@ static const uint8_t D10  = 1;
 
 
 eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhNjkxZjkwMTc4MGM0Zjk2YTQwZjE4YjVjMDNmMjcwOSIsImlhdCI6MTU3MDI5MDgzNywiZXhwIjoxODg1NjUwODM3fQ.ruvCl3XRi3zPoniRP8muaSRt3Jk0j3qTysmAiRmSMx0
+
+
+            string lst1string = "";
+            foreach (ListViewItem itemRow in listView1.Items)
+            {
+
+                for (int i = 1; i < itemRow.SubItems.Count; i += 2)
+                {
+                    lst1string += itemRow.SubItems[i].Text + ":" + itemRow.SubItems[i + 1].Text + ",";
+                }
+            }
