@@ -4,83 +4,119 @@ from datetime import datetime
 import time
 import os
 import openpyxl
+import sys
+import signal
+import win32api,win32con
+ 
 
 headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36 Edg/87.0.664.60",
 "Content-Type": "application/json",
 "Referer": "https://ecp.sgcc.com.cn/ecp2.0/portal/",
 }
 codelist=[]
+flag=0
+
 
 def getNoticeBid(lstid):
     getNoticeBidurl='https://ecp.sgcc.com.cn/ecp2.0/ecpwcmcore//index/getNoticeBid'
-   # caigou='{"index":1,"size":20,"firstPageMenuId":"2018032900295987","purOrgStatus":"","purOrgCode":"","purType":"","orgId":"","key":""}'
-    res=json.loads(requests.post(url=getNoticeBidurl,data=json.dumps(lstid), headers=headers).text)   
-    print('采购项目名称：'+res["resultValue"]["notice"]["PURPRJ_NAME"])
-    print('采购项目编号：'+res["resultValue"]["notice"]["PURPRJ_CODE"])
-    print('采购文件获取截止时间：'+res["resultValue"]["notice"]["BIDBOOK_BUY_END_TIME"])
-    print('采购类型：'+res["resultValue"]["notice"]["PUR_TYPE_NAME"])
-    print('开启应答文件时间：'+res["resultValue"]["notice"]["BIDBOOK_SELL_BEGIN_TIME"])
-    print('采购人：'+res["resultValue"]["notice"]["PUBLISH_ORG_NAME"])
-   # print('联系人：'+res["resultValue"]["notice"]["CONTACT"])
-    print('开启应答文件地点:'+res["resultValue"]["notice"]["OPENBID_ADDR"])
-    #print('招标代理机构:'+res["resultValue"]["notice"]["BID_AGT"])
-    #print('招标代理机构邮编:'+res["resultValue"]["notice"]["BID_AGT_ADDR_ZIP_CODE"])
-    #print('联系电话:'+res["resultValue"]["notice"]["TEL"])
-    #print('E_MAIL:'+res["resultValue"]["notice"]["E_MAIL"])
-   
+    res=json.loads(requests.post(url=getNoticeBidurl,data=json.dumps(lstid), headers=headers).text)
+    PurType=res["resultValue"]["notice"]["PUR_TYPE_NAME"]
+    bidlist=[]
+    bidlist.append(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    bidlist.append(res["resultValue"]["notice"]["PURPRJ_NAME"])
+    bidlist.append(res["resultValue"]["notice"]["PURPRJ_CODE"])
+    bidlist.append(res["resultValue"]["notice"]["BIDBOOK_BUY_END_TIME"])
+    bidlist.append(res["resultValue"]["notice"]["BIDBOOK_SELL_BEGIN_TIME"])
+    zipname=str(res["resultValue"]["notice"]["ONLINE_BID_NOTICE_ID"])+".zip"
+    bidlist.append('=HYPERLINK("Download\\'+zipname+'","'+zipname+'")')
+    if PurType=="物资":
+        print("新增物资采购 \r"+datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        writexls(bidlist,"物资采购")
+    else:
+        print("新增服务采购 \r"+datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        writexls(bidlist,"服务采购")
+    getDownloadurl(lstid)
+        
  
 def getChangeBid(lstid): 
     getChangeBidurl='https://ecp.sgcc.com.cn/ecp2.0/ecpwcmcore//index/getChangeBid'
-   # caigou='{"index":1,"size":20,"firstPageMenuId":"2018032900295987","purOrgStatus":"","purOrgCode":"","purType":"","orgId":"","key":""}'
     res=json.loads(requests.post(url=getChangeBidurl,data=json.dumps(lstid), headers=headers).text)
+    #print(res)
+    return res
 
-#def writexls(Bidjson):
-
+def writexls(Bid,sheetname):
+    wb = openpyxl.load_workbook(os.getcwd()+'\\Res\\采购信息.xlsx')
+    ws = wb[sheetname]
+    if sheetname=="物资采购" or sheetname=="服务采购":
+        ws['A1'] = '获取时间'
+        ws.column_dimensions['A'].width = 23
+        ws['B1'] = '采购项目名称'
+        ws.column_dimensions['B'].width = 72
+        ws['C1'] = '采购项目编号'
+        ws.column_dimensions['C'].width = 18
+        ws['D1'] = '采购文件获取截止时间'
+        ws.column_dimensions['D'].width = 23
+        ws['E1'] = '开启应答文件时间'
+        ws.column_dimensions['E'].width = 23
+        ws['F1'] = '公告文件'
+        ws.column_dimensions['F'].width = 23  
+        ws.style = "Hyperlink"
+    ws.append(Bid)
+    wb.save(os.getcwd()+'\\Res\\采购信息.xlsx')
 
 def getDownloadurl(lstid):
     downloadurl='https://ecp.sgcc.com.cn/ecp2.0/ecpwcmcore//index/downLoadBid?noticeId='+str(lstid)+'&noticeDetId='
-    print ("downloading with requests")
-    r = requests.get(downloadurl) 
-    with open(str(lstid)+".zip", "wb") as code:
-        code.write(r.content)
+    cmd = 'Res\\wget --content-disposition "%s" -O "%s"' %(downloadurl,"Download\\"+str(lstid)+".zip")
+    os.system(cmd)
 
-def caigou():
+def purchase():
     url = 'https://ecp.sgcc.com.cn/ecp2.0/ecpwcmcore//index/noteList'
-    #zizhi='{"index":1,"size":20,"firstPageMenuId":"2018032700290425","purOrgStatus":"","purOrgCode":"","purType":"","orgId":"","key":""}'
-    #toubiao='{"index":1,"size":20,"firstPageMenuId":"2018032700291334","purOrgStatus":"","purOrgCode":"","purType":"","orgId":"","key":""}'
-    caigou='{"index":1,"size":20,"firstPageMenuId":"2018032900295987","purOrgStatus":"","purOrgCode":"","purType":"","orgId":"","key":""}'
-    res = requests.post(url=url,data=caigou)
+    #Pre-qualification='{"index":1,"size":20,"firstPageMenuId":"2018032700290425","purOrgStatus":"","purOrgCode":"","purType":"","orgId":"","key":""}'
+    #Tendering ='{"index":1,"size":20,"firstPageMenuId":"2018032700291334","purOrgStatus":"","purOrgCode":"","purType":"","orgId":"","key":""}'
+    purchasedata='{"index":1,"size":40,"firstPageMenuId":"2018032900295987","purOrgStatus":"","purOrgCode":"","purType":"","orgId":"","key":""}'
+    res = requests.post(url=url,data=purchasedata)
     result=json.loads(res.text)
-    for i in range(0,20):
-        #status=result['resultValue']["noteList"][i]['purOrgStatus']
+    flag=0
+    for i in range(20,0):
         listid=result['resultValue']["noteList"][i]['id']
-        code=result['resultValue']["noteList"][i]['code']
         doctype=result['resultValue']["noteList"][i]['doctype']#doci-bid采购公告 doci-change：变更
-        if doctype=="doci-bid":
-            print("新增采购公告\r")
-            if code in codelist:
-                pass
-            else:
-                codelist.append(code)
-                with open('list.txt', "a") as f:
-                    f.write(code+"\r")
-                getNoticeBid(listid)
-        if doctype=="doci-change":
-            print("新增变更公告\r")
-            #getChangeBid(listid)
+        if str(listid) in codelist:
             pass
-    
-    
+        else: 
+            if doctype=="doci-bid":
+                flag=1
+                codelist.append(str(listid))
+                getNoticeBid(listid)
+            elif doctype=="doci-change":
+                getChangeBid(listid)
+            with open(os.getcwd()+'\\Res\\list.txt', "a") as f:
+                f.write(str(listid)+"\r")
+    os.popen('copy '+os.getcwd()+'\\Res\\采购信息.xlsx '+os.getcwd()+'\\国网招采.xlsx' )
+    return flag
+
+def quit(signum, frame):
+    sys.exit()    
 
 if __name__ =="__main__":
-    if not os.path.exists('list.txt'):
-        with open('list.txt', "w") as f:
+    if not os.path.exists(os.getcwd()+'\\Res\\采购信息.xlsx'):
+        wb = openpyxl.Workbook()
+        sheet = wb.active
+        sheet.title="物资采购"
+        wb .create_sheet("服务采购")
+        wb.save(os.getcwd()+'\\Res\\采购信息.xlsx')
+        print("create xlsx")
+    if not os.path.exists(os.getcwd()+'\\Res\\list.txt'):
+        with open(os.getcwd()+'\\Res\\list.txt', "w") as f:
             f.write("")
+        print("create txt")
     else:
-        with open('list.txt', "r") as f:
+        with open(os.getcwd()+'\\Res\\list.txt', "r") as f:
             for line in f:
-                codelist.append(list(line.strip('\n').split(',')))
+                codelist.append(line.strip('\n'))
+    signal.signal(signal.SIGINT, quit)                                
+    signal.signal(signal.SIGTERM, quit)
     while True:
         print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        caigou()
+        if purchase()==1:
+            win32api.MessageBox(0, "有新的采购信息了！", "提醒",win32con.MB_OK)
         time.sleep(300)
